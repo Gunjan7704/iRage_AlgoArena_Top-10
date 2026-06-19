@@ -23,57 +23,6 @@
 
 The core challenge: extract genuine predictive signal from a wide feature space where most columns are noise, while respecting the temporal structure inherent to financial data.
 
----
-
-## Solution Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      RAW FEATURES (~hundreds)                   │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │  FEATURE SELECTION   │
-                    │  |corr| with TARGET  │
-                    │  Top 120 features    │
-                    └──────────┬──────────┘
-                               │
-          ┌────────────────────┼────────────────────┐
-          │                    │                     │
- ┌────────▼────────┐ ┌────────▼────────┐  ┌────────▼────────┐
- │   MOMENTUM &    │ │ INTRA-SIGNAL    │  │ CROSS-SIGNAL    │
- │  ACCELERATION   │ │ INTERACTIONS    │  │ INTERACTIONS    │
- │  (1st & 2nd     │ │ Top-20 pairwise │  │ S01×S02 (25)   │
- │   differences)  │ │ products (190)  │  │ S01×S03 (25)   │
- └────────┬────────┘ └────────┬────────┘  └────────┬────────┘
-          │                    │                     │
-          └────────────────────┼─────────────────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │  COMBINED FEATURE   │
-                    │       MATRIX        │
-                    └──────────┬──────────┘
-                               │
-              ┌────────────────┼────────────────┐
-              │                                 │
-     ┌────────▼────────┐              ┌────────▼────────┐
-     │    MODEL A       │              │    MODEL B       │
-     │  (Conservative)  │              │  (Aggressive)    │
-     │  α=5, λ=5        │              │  α=0.5, λ=0.5   │
-     │  GroupKFold (5)  │              │  GroupKFold (5)  │
-     └────────┬────────┘              └────────┬────────┘
-              │                                 │
-              │        ┌──────────────┐         │
-              └───────►│   ENSEMBLE   │◄────────┘
-                       │ 0.72A+0.28B  │
-                       └──────┬───────┘
-                              │
-                     ┌────────▼────────┐
-                     │  FINAL PREDS    │
-                     └─────────────────┘
-```
-
----
 
 ## Feature Engineering
 
